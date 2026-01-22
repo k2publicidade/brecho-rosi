@@ -27,7 +27,7 @@ export const Navbar: React.FC = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 group">
             <span className="font-serif text-xl md:text-2xl font-bold text-chic-dark tracking-tight group-hover:opacity-80 transition-opacity">
-              EcoChic<span className="text-chic-olive">.</span>
+              Brechó da Rosi<span className="text-chic-olive">.</span>
             </span>
           </Link>
 

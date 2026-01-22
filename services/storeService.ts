@@ -1,17 +1,17 @@
 import { Product, ProductCondition, ProductCategory } from '../types';
 
 const STORAGE_KEYS = {
-  PRODUCTS: 'ecochic_products',
-  ORDERS: 'ecochic_orders'
+  PRODUCTS: 'brechodarosi_products',
+  ORDERS: 'brechodarosi_orders'
 };
 
 const SEED_PRODUCTS: Product[] = [
   {
     id: '1',
     title: 'Jaqueta Jeans Vintage 90s',
-    description: 'Uma peça icônica dos anos 90, com lavagem clara e corte oversized. Perfeita para compor looks despojados e cheios de personalidade. O jeans é grosso e resistente, garantindo durabilidade.',
+    description: 'Achado especial! Essa jaqueta jeans dos anos 90 é perfeita para dar aquele UP no look. Lavagem clara e corte oversized que nunca sai de moda. O jeans é grosso e resistente - desses que você usa por anos!\n\nEstado: Garimpado e aprovado pela Rosi ✓',
     price: 120.00,
-    originalPrice: 160.00, // Promoção example
+    originalPrice: 160.00,
     size: 'M',
     condition: ProductCondition.EXCELLENT,
     category: ProductCategory.CLOTHING,
@@ -22,7 +22,7 @@ const SEED_PRODUCTS: Product[] = [
   {
     id: '2',
     title: 'Bolsa de Couro Caramelo',
-    description: 'Bolsa transversal em couro legítimo na cor caramelo. Possui marcas do tempo que adicionam charme e autenticidade à peça. Ideal para o dia a dia.',
+    description: 'Achado especial! Essa bolsa transversal de couro legítimo é perfeita para dar aquele UP no look.\n\nDetalhes: Couro caramelo autêntico com marcas do tempo que contam história\nEstado: Garimpado e aprovado pela Rosi ✓',
     price: 85.50,
     size: 'Único',
     condition: ProductCondition.GOOD,
@@ -34,9 +34,9 @@ const SEED_PRODUCTS: Product[] = [
   {
     id: '3',
     title: 'Vestido Floral Romântico',
-    description: 'Vestido leve com estampa floral delicada. Ótimo para dias de primavera. Cintura marcada e saia fluida.',
+    description: 'Aquele básico que não pode faltar no guarda-roupa! Vestido leve com estampa floral delicada, perfeito para dias quentes. Cintura marcada e saia fluida criam um visual romântico e confortável.\n\nPeça atemporal, versátil e em ótimo estado.',
     price: 65.00,
-    originalPrice: 89.90, // Promoção example
+    originalPrice: 89.90,
     size: 'P',
     condition: ProductCondition.EXCELLENT,
     category: ProductCategory.CLOTHING,
@@ -47,7 +47,7 @@ const SEED_PRODUCTS: Product[] = [
   {
     id: '4',
     title: 'Bota Coturno Preta',
-    description: 'Coturno clássico preto, solado tratorado. Uma peça coringa que combina com tudo, desde vestidos até calças rasgadas.',
+    description: 'Coturno clássico preto com solado tratorado - aquela peça coringa que salva qualquer look! Combina desde vestidos delicados até calças rasgadas.\n\nUma peça com história que vai longe com você. Quando você encontra um achadinho desses, é pra levar! 💚',
     price: 150.00,
     size: '37',
     condition: ProductCondition.FAIR,
@@ -55,6 +55,30 @@ const SEED_PRODUCTS: Product[] = [
     imageUrl: 'https://picsum.photos/id/103/500/500',
     available: true,
     createdAt: Date.now() - 30000
+  },
+  {
+    id: '5',
+    title: 'Blusa Branca Básica',
+    description: 'Aquele básico que não pode faltar no guarda-roupa. Blusa branca em tecido fresquinho, perfeita para o dia a dia.\n\nTamanho: M\nCondição: Excelente\n\nPeça atemporal, versátil e em ótimo estado.',
+    price: 45.00,
+    size: 'M',
+    condition: ProductCondition.EXCELLENT,
+    category: ProductCategory.CLOTHING,
+    imageUrl: 'https://picsum.photos/id/365/500/500',
+    available: true,
+    createdAt: Date.now() - 40000
+  },
+  {
+    id: '6',
+    title: 'Colar Dourado Vintage',
+    description: 'Achado especial! Esse colar vintage dourado é perfeito para dar aquele UP no look.\n\nDetalhes: Dourado vintage com pingente delicado, ótimo para compor visuais elegantes\nEstado: Garimpado e aprovado pela Rosi ✓',
+    price: 38.00,
+    size: 'Único',
+    condition: ProductCondition.GOOD,
+    category: ProductCategory.ACCESSORIES,
+    imageUrl: 'https://picsum.photos/id/399/500/500',
+    available: true,
+    createdAt: Date.now() - 50000
   }
 ];
 
