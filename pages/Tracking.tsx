@@ -77,9 +77,10 @@ export const Tracking: React.FC = () => {
         />
         <button 
           type="submit" 
-          className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-chic-dark text-white w-12 h-12 rounded-full hover:bg-black transition-all flex items-center justify-center shadow-md active:scale-95"
+          disabled={loading}
+          className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-chic-dark text-white w-12 h-12 rounded-full hover:bg-black transition-all flex items-center justify-center shadow-md active:scale-95 disabled:opacity-50"
         >
-          <ArrowRight size={24} />
+          {loading ? <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div> : <ArrowRight size={24} />}
         </button>
       </form>
 

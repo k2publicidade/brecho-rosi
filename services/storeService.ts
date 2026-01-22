@@ -89,7 +89,98 @@ export const deleteProductFromDb = async (id: string): Promise<void> => {
   }
 };
 
-// --- Local Storage (Legacy/Fallback) ---
+// --- Orders Integration ---
+
+export const getOrders = async (): Promise<Order[]> => {
+  const { data, error } = await supabase
+    .from('orders')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Erro ao buscar pedidos:', error);
+    return getStoredOrders();
+  }
+
+  return data ? data.map((row: any) => ({
+    ...row.order_data, // Recupera o objeto completo salvo no JSONB
+    id: row.id, // Garante que o ID do banco prevalece
+    status: row.status, // Garante status atualizado
+    date: row.created_at
+  })) : [];
+};
+
+export const getOrderById = async (id: string): Promise<Order | null> => {
+  // Tenta buscar pelo ID exato ou pelos últimos caracteres (para facilitar busca)
+  // Como 'like' pode ser lento, vamos focar no ID exato primeiro
+  const { data, error } = await supabase
+    .from('orders')
+    .select('*')
+    .eq('id', id)
+    .single();
+
+  if (error || !data) {
+     // Fallback: tentar buscar localmente se não achar no banco (apenas para dev/transição)
+     const localOrders = getStoredOrders();
+     return localOrders.find(o => o.id === id) || null;
+  }
+
+  return {
+    ...data.order_data,
+    id: data.id,
+    status: data.status,
+    date: data.created_at
+  };
+};
+
+export const createOrderInDb = async (order: Order): Promise<void> => {
+  const { error } = await supabase
+    .from('orders')
+    .insert([{
+      id: order.id,
+      customer_name: order.customerName,
+      total: order.total,
+      status: order.status,
+      order_data: order, // Salva o objeto completo para preservar trackingHistory, items, etc.
+      created_at: new Date().toISOString()
+    }]);
+
+  if (error) {
+    console.error('Erro ao criar pedido:', error);
+    throw error;
+  }
+};
+
+export const updateOrderStatusInDb = async (orderId: string, newStatus: OrderStatus, updatedHistory: any[]): Promise<void> => {
+  // Primeiro buscamos o pedido atual para atualizar o trackingHistory dentro do jsonb
+  const { data: currentOrder } = await supabase
+    .from('orders')
+    .select('order_data')
+    .eq('id', orderId)
+    .single();
+
+  if (currentOrder) {
+    const updatedData = {
+      ...currentOrder.order_data,
+      status: newStatus,
+      trackingHistory: updatedHistory
+    };
+
+    const { error } = await supabase
+      .from('orders')
+      .update({
+        status: newStatus,
+        order_data: updatedData
+      })
+      .eq('id', orderId);
+
+    if (error) {
+        console.error('Erro ao atualizar status do pedido:', error);
+        throw error;
+    }
+  }
+};
+
 
 export const getStoredProducts = (): Product[] => {
   const stored = localStorage.getItem(STORAGE_KEYS.PRODUCTS);

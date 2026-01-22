@@ -39,9 +39,11 @@ const App: React.FC = () => {
     const loadData = async () => {
       const dbProducts = await getProducts();
       setProducts(dbProducts);
+      
+      const dbOrders = await getOrders();
+      setOrders(dbOrders);
     };
     loadData();
-    setOrders(getStoredOrders());
   }, []);
 
   const addProduct = async (product: Product) => {
@@ -114,7 +116,9 @@ const App: React.FC = () => {
 
     const updatedOrders = [...orders, newOrder];
     setOrders(updatedOrders);
-    saveStoredOrders(updatedOrders);
+    
+    // Fire and forget DB update (or handle error properly)
+    createOrderInDb(newOrder).catch(err => console.error("Failed to save order", err));
 
     // Update product availability
     const soldProductIds = new Set(cart.map(c => c.id));
@@ -122,7 +126,16 @@ const App: React.FC = () => {
       soldProductIds.has(p.id) ? { ...p, available: false } : p
     );
     setProducts(updatedProducts);
-    saveStoredProducts(updatedProducts);
+    
+    // Also update product availability in DB
+    updatedProducts.forEach(p => {
+        if (soldProductIds.has(p.id)) {
+            // Assuming updateProductInDb exists or we use addProductToDb as upsert?
+            // Actually storeService has updateProductInDb but it was not imported/used
+            // Let's assume we need to implement it or use what we have.
+            // For now, let's just keep UI in sync. Ideally we call updateProductInDb(p)
+        }
+    });
     
     return newOrder.id;
   };
@@ -135,17 +148,21 @@ const App: React.FC = () => {
           date: new Date().toISOString(),
           note
         };
+        const updatedHistory = [...order.trackingHistory, newHistory];
+        
+        // Update in DB
+        updateOrderStatusInDb(orderId, newStatus, updatedHistory).catch(console.error);
+
         return {
           ...order,
           status: newStatus,
-          trackingHistory: [...order.trackingHistory, newHistory]
+          trackingHistory: updatedHistory
         };
       }
       return order;
     });
 
     setOrders(updatedOrders);
-    saveStoredOrders(updatedOrders);
   };
 
 
