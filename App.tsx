@@ -8,7 +8,7 @@ import { Cart } from './pages/Cart';
 import { Admin } from './pages/Admin';
 import { Tracking } from './pages/Tracking';
 import { Product, CartItem, Order, StoreContextType, DeliveryMethod, OrderStatus, TrackingEvent, PaymentMethod } from './types';
-import { getStoredProducts, saveStoredProducts, getStoredOrders, saveStoredOrders } from './services/storeService';
+import { getProducts, addProductToDb, getStoredOrders, saveStoredOrders, saveStoredProducts } from './services/storeService';
 
 // Default value for context
 const defaultContext: StoreContextType = {
@@ -36,9 +36,40 @@ const App: React.FC = () => {
 
   // Load initial data
   useEffect(() => {
-    setProducts(getStoredProducts());
+    const loadData = async () => {
+      const dbProducts = await getProducts();
+      setProducts(dbProducts);
+    };
+    loadData();
     setOrders(getStoredOrders());
   }, []);
+
+  const addProduct = async (product: Product) => {
+    // Optimistic UI update
+    setProducts(prev => [product, ...prev]);
+    
+    try {
+      await addProductToDb(product);
+    } catch (error) {
+      console.error("Failed to add product to DB, reverting UI", error);
+      setProducts(prev => prev.filter(p => p.id !== product.id));
+      alert("Erro ao salvar produto no banco de dados.");
+    }
+  };
+  
+  const deleteProduct = async (id: string) => {
+      // Optimistic UI update
+      const previousProducts = [...products];
+      setProducts(prev => prev.filter(p => p.id !== id));
+
+      try {
+        await deleteProductFromDb(id);
+      } catch (error) {
+        console.error("Failed to delete product from DB", error);
+        setProducts(previousProducts); // Revert
+        alert("Erro ao excluir produto.");
+      }
+  };
 
   const addToCart = (product: Product) => {
     if (!product.available) return;

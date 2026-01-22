@@ -1,7 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
 
-const apiKey = process.env.API_KEY || '';
-const ai = new GoogleGenAI({ apiKey });
+// Use import.meta.env for Vite environment variables
+const apiKey = import.meta.env.VITE_GEMINI_API_KEY || '';
 
 export const generateProductDescription = async (
   title: string,
@@ -9,9 +9,13 @@ export const generateProductDescription = async (
   category: string,
   details: string
 ): Promise<string> => {
-  if (!apiKey) return "Descrição automática indisponível (Chave API ausente).";
+  if (!apiKey) {
+    console.warn("API Key do Gemini não encontrada. Configure VITE_GEMINI_API_KEY no arquivo .env");
+    return "Descrição automática indisponível (Chave API ausente).";
+  }
 
   try {
+    const ai = new GoogleGenAI({ apiKey });
     const prompt = `
       Atue como um especialista em moda vintage e curadoria de brechós.
       Escreva uma descrição atraente, vendedora e com estilo "aesthetic" para um produto de brechó online.
@@ -27,11 +31,13 @@ export const generateProductDescription = async (
     `;
 
     const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
-      contents: prompt,
+      model: 'gemini-2.0-flash',
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
     });
 
-    return response.text || "Não foi possível gerar a descrição.";
+    // @ts-ignore - Fix for potential type mismatch in preview SDK
+    const responseText = (response as any).text ? (response as any).text() : (response as any).response?.text();
+    return responseText || "Não foi possível gerar a descrição.";
   } catch (error) {
     console.error("Erro ao gerar descrição:", error);
     return "Erro ao conectar com a IA para gerar descrição.";
