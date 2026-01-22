@@ -1,4 +1,4 @@
-import { Product, ProductCondition, ProductCategory } from '../types';
+import { Product, ProductCondition, ProductCategory, Order, OrderStatus } from '../types';
 import { supabase } from './supabaseClient';
 
 const STORAGE_KEYS = {

@@ -8,7 +8,14 @@ import { Cart } from './pages/Cart';
 import { Admin } from './pages/Admin';
 import { Tracking } from './pages/Tracking';
 import { Product, CartItem, Order, StoreContextType, DeliveryMethod, OrderStatus, TrackingEvent, PaymentMethod } from './types';
-import { getProducts, addProductToDb, deleteProductFromDb, getStoredOrders, saveStoredOrders, saveStoredProducts } from './services/storeService';
+import { 
+  getProducts, 
+  addProductToDb, 
+  deleteProductFromDb, 
+  getOrders, 
+  createOrderInDb, 
+  updateOrderStatusInDb 
+} from './services/storeService';
 
 // Default value for context
 const defaultContext: StoreContextType = {

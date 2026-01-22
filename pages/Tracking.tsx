@@ -1,5 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { StoreContext } from '../App';
+import { getOrderById } from '../services/storeService';
 import { Search, Package, MapPin, CheckCircle, Clock, Truck, Store, ArrowRight } from 'lucide-react';
 import { OrderStatus, DeliveryMethod } from '../types';
 
@@ -7,17 +8,37 @@ export const Tracking: React.FC = () => {
   const { orders } = useContext(StoreContext);
   const [searchId, setSearchId] = useState('');
   const [foundOrder, setFoundOrder] = useState<any | null>(null);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    const order = orders.find(o => o.id === searchId || o.id.endsWith(searchId));
-    if (order) {
-      setFoundOrder(order);
-    } else {
-      setFoundOrder(null);
-      setError('Poxa, vizinha, não encontramos esse código. Confere se está certinho?');
+    setFoundOrder(null);
+    setLoading(true);
+
+    // 1. Tenta encontrar no contexto local (já carregado)
+    const localOrder = orders.find(o => o.id === searchId || o.id.endsWith(searchId));
+    
+    if (localOrder) {
+      setFoundOrder(localOrder);
+      setLoading(false);
+      return;
+    }
+
+    // 2. Se não achar, busca diretamente no Supabase (para garantir)
+    try {
+      const dbOrder = await getOrderById(searchId);
+      if (dbOrder) {
+        setFoundOrder(dbOrder);
+      } else {
+        setError('Poxa, vizinha, não encontramos esse código. Confere se está certinho?');
+      }
+    } catch (err) {
+      console.error(err);
+      setError('Erro ao buscar o pedido. Tente novamente.');
+    } finally {
+      setLoading(false);
     }
   };
 
