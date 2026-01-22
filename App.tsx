@@ -8,7 +8,7 @@ import { Cart } from './pages/Cart';
 import { Admin } from './pages/Admin';
 import { Tracking } from './pages/Tracking';
 import { Product, CartItem, Order, StoreContextType, DeliveryMethod, OrderStatus, TrackingEvent, PaymentMethod } from './types';
-import { getProducts, addProductToDb, getStoredOrders, saveStoredOrders, saveStoredProducts } from './services/storeService';
+import { getProducts, addProductToDb, deleteProductFromDb, getStoredOrders, saveStoredOrders, saveStoredProducts } from './services/storeService';
 
 // Default value for context
 const defaultContext: StoreContextType = {
@@ -148,17 +148,7 @@ const App: React.FC = () => {
     saveStoredOrders(updatedOrders);
   };
 
-  const addProduct = (product: Product) => {
-    const updated = [product, ...products];
-    setProducts(updated);
-    saveStoredProducts(updated);
-  };
 
-  const deleteProduct = (productId: string) => {
-    const updated = products.filter(p => p.id !== productId);
-    setProducts(updated);
-    saveStoredProducts(updated);
-  };
 
   const toggleAdmin = () => setIsAdmin(!isAdmin);
 
