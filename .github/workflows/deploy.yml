@@ -3,7 +3,8 @@ name: Deploy to Hostinger
 on:
   push:
     branches:
-      - final
+      - Final
+  workflow_dispatch:
 
 jobs:
   web-deploy:
