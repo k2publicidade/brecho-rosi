@@ -5,6 +5,30 @@ import { Trash2, Store, CheckCircle, Truck, Calculator, ArrowRight, User, Mail, 
 import { Link } from 'react-router-dom';
 import { calculateShippingQuote } from '../services/shippingService';
 
+// PremiumInput Component - Separado para evitar re-criação
+const PremiumInput = ({
+  label,
+  icon: Icon,
+  ...props
+}: React.InputHTMLAttributes<HTMLInputElement> & { label: string, icon?: React.ElementType }) => (
+  <div className="group">
+    <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 ml-1 group-focus-within:text-chic-dark transition-colors">
+      {label}
+    </label>
+    <div className="relative">
+      {Icon && (
+        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-chic-dark transition-colors">
+          <Icon size={18} />
+        </div>
+      )}
+      <input
+        {...props}
+        className={`w-full bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-2xl focus:ring-2 focus:ring-chic-dark/10 focus:border-chic-dark focus:bg-white block p-4 transition-all outline-none placeholder:text-gray-300 ${Icon ? 'pl-12' : ''}`}
+      />
+    </div>
+  </div>
+);
+
 export const Cart: React.FC = () => {
   const { cart, removeFromCart, placeOrder, clearCart } = useContext(StoreContext);
   
@@ -48,8 +72,7 @@ export const Cart: React.FC = () => {
     if (name === 'contact') {
       const isEmail = /[a-zA-Z@]/.test(value);
       if (!isEmail) {
-        const nums = value.replace(/\D/g, '');
-        if (nums.length > 11) return;
+        const nums = value.replace(/\D/g, '').slice(0, 11); // Limita a 11 dígitos
 
         if (nums.length === 0) newValue = '';
         else if (nums.length <= 2) newValue = `(${nums}`;
@@ -61,9 +84,8 @@ export const Cart: React.FC = () => {
 
     // Máscara para CEP
     if (name === 'zip') {
-      const nums = value.replace(/\D/g, '');
-      if (nums.length > 8) return;
-      
+      const nums = value.replace(/\D/g, '').slice(0, 8); // Limita a 8 dígitos
+
       if (nums.length > 5) newValue = `${nums.slice(0, 5)}-${nums.slice(5)}`;
       else newValue = nums;
       
@@ -122,30 +144,6 @@ export const Cart: React.FC = () => {
         window.scrollTo(0, 0);
     }, 500);
   };
-
-  // Reusable Input Component
-  const PremiumInput = ({ 
-    label, 
-    icon: Icon, 
-    ...props 
-  }: React.InputHTMLAttributes<HTMLInputElement> & { label: string, icon?: React.ElementType }) => (
-    <div className="group">
-      <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 ml-1 group-focus-within:text-chic-dark transition-colors">
-        {label}
-      </label>
-      <div className="relative">
-        {Icon && (
-          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-chic-dark transition-colors">
-            <Icon size={18} />
-          </div>
-        )}
-        <input 
-          {...props}
-          className={`w-full bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-2xl focus:ring-2 focus:ring-chic-dark/10 focus:border-chic-dark focus:bg-white block p-4 transition-all outline-none placeholder:text-gray-300 ${Icon ? 'pl-12' : ''}`}
-        />
-      </div>
-    </div>
-  );
 
   if (lastOrderCode) {
     return (

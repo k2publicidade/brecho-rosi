@@ -1,74 +1,96 @@
 import React, { useContext } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ShoppingBag, User, Search, Home, Package, Grid } from 'lucide-react';
+import { ShoppingBag, User, Home, Package, Grid } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { StoreContext } from '../App';
 
 export const Navbar: React.FC = () => {
   const { cart, isAdmin, toggleAdmin } = useContext(StoreContext);
   const location = useLocation();
 
-  const navLinks = [
-    { path: '/', label: 'Início' },
-    { path: '/catalog', label: 'Catálogo' },
-    { path: '/tracking', label: 'Rastrear' },
-  ];
-
-  const mobileTabs = [
-    { path: '/', icon: Home, label: 'Início' },
-    { path: '/catalog', icon: Grid, label: 'Catálogo' },
-    { path: '/tracking', icon: Package, label: 'Rastrear' },
+  const navItems = [
+    { name: 'Início', url: '/', icon: Home },
+    { name: 'Catálogo', url: '/catalog', icon: Grid },
+    { name: 'Rastrear', url: '/tracking', icon: Package },
   ];
 
   return (
     <>
-      {/* Desktop & Mobile Header */}
-      <nav className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-gray-100 transition-all duration-300">
-        <div className="max-w-7xl mx-auto px-6 h-16 md:h-20 flex justify-between items-center">
+      {/* Header com Logo, Navbar Tubelight e Carrinho */}
+      <nav className="fixed top-0 left-0 right-0 z-40 bg-white/80 backdrop-blur-xl border-b border-gray-100">
+        <div className="max-w-7xl mx-auto px-6 h-16 md:h-20 flex justify-between items-center gap-4 md:gap-8">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 group">
+          <Link to="/" className="flex items-center gap-2 group shrink-0">
             <span className="font-serif text-xl md:text-2xl font-bold text-chic-dark tracking-tight group-hover:opacity-80 transition-opacity">
               Brechó da Rosi<span className="text-chic-olive">.</span>
             </span>
           </Link>
 
-          {/* Desktop Nav */}
-          <div className="hidden md:flex items-center gap-8">
-            {navLinks.map((link) => (
-              <Link 
-                key={link.path}
-                to={link.path} 
-                className={`text-sm font-medium transition-colors hover:text-chic-olive ${
-                  location.pathname === link.path ? 'text-chic-olive' : 'text-gray-600'
-                }`}
-              >
-                {link.label}
-              </Link>
-            ))}
-            {isAdmin && (
-              <Link to="/admin" className="text-sm font-medium text-chic-olive">
-                Admin
-              </Link>
-            )}
+          {/* Tubelight Navigation - Centro */}
+          <div className="flex-1 flex justify-center">
+            <div className="inline-flex items-center gap-2 bg-white/95 border border-gray-200 backdrop-blur-xl py-1 px-1 rounded-full shadow-md">
+              {navItems.map((item) => {
+                const Icon = item.icon;
+                const isActive = location.pathname === item.url;
+
+                return (
+                  <Link
+                    key={item.name}
+                    to={item.url}
+                    className={`relative cursor-pointer text-sm font-semibold px-4 md:px-6 py-2 rounded-full transition-colors ${
+                      isActive
+                        ? 'text-chic-olive'
+                        : 'text-gray-600 hover:text-chic-olive'
+                    }`}
+                  >
+                    <span className="hidden md:inline relative z-10">{item.name}</span>
+                    <span className="md:hidden relative z-10">
+                      <Icon size={18} strokeWidth={2.5} />
+                    </span>
+
+                    {/* Efeito Tubelight Animado */}
+                    {isActive && (
+                      <motion.div
+                        layoutId="navbar-tubelight"
+                        className="absolute inset-0 bg-gray-50 rounded-full -z-0"
+                        initial={false}
+                        transition={{
+                          type: "spring",
+                          stiffness: 300,
+                          damping: 30,
+                        }}
+                      >
+                        {/* Luz superior (tubelight effect) */}
+                        <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-chic-olive rounded-full">
+                          <div className="absolute w-10 h-4 bg-chic-olive/20 rounded-full blur-sm -top-1 -left-1" />
+                          <div className="absolute w-6 h-3 bg-chic-olive/30 rounded-full blur-[2px] -top-0.5 left-1" />
+                        </div>
+                      </motion.div>
+                    )}
+                  </Link>
+                );
+              })}
+            </div>
           </div>
 
-          {/* Icons (Desktop Only mostly, Mobile Cart stays) */}
-          <div className="flex items-center gap-4 md:gap-6">
-            <button className="hidden md:block text-gray-600 hover:text-chic-olive transition-colors">
-              <Search size={20} strokeWidth={1.5} />
-            </button>
-            
-            <button 
+          {/* Ações (Desktop) */}
+          <div className="flex items-center gap-4 md:gap-6 shrink-0">
+            <button
               onClick={toggleAdmin}
               className={`hidden md:block transition-colors ${isAdmin ? 'text-chic-olive' : 'text-gray-600 hover:text-chic-olive'}`}
+              title={isAdmin ? 'Modo Admin Ativo' : 'Ativar Modo Admin'}
             >
               <User size={20} strokeWidth={1.5} />
             </button>
 
             {/* Cart Icon - Visible on Mobile & Desktop */}
-            <Link to="/cart" className="relative text-gray-600 hover:text-chic-olive transition-colors group p-1">
+            <Link
+              to="/cart"
+              className="relative text-gray-600 hover:text-chic-olive transition-colors group p-1"
+            >
               <ShoppingBag size={22} strokeWidth={1.5} />
               {cart.length > 0 && (
-                <span className="absolute top-0 -right-1 bg-chic-olive text-white text-[10px] font-bold h-4 w-4 rounded-full flex items-center justify-center shadow-sm animate-bounce">
+                <span className="absolute -top-1 -right-1 bg-chic-olive text-white text-[10px] font-bold h-5 w-5 rounded-full flex items-center justify-center shadow-md animate-pulse">
                   {cart.length}
                 </span>
               )}
@@ -77,45 +99,19 @@ export const Navbar: React.FC = () => {
         </div>
       </nav>
 
-      {/* Mobile Bottom Navigation Bar (App Style) */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-lg border-t border-gray-100 pb-safe pt-2 px-6 z-50 flex justify-between items-end shadow-[0_-4px_20px_rgba(0,0,0,0.03)]">
-        {mobileTabs.map((tab) => {
-          const isActive = location.pathname === tab.path;
-          return (
-            <Link 
-              key={tab.path}
-              to={tab.path}
-              className={`flex flex-col items-center gap-1 p-3 w-16 transition-all duration-300 ${isActive ? '-translate-y-1' : ''}`}
-            >
-              <tab.icon 
-                size={24} 
-                strokeWidth={isActive ? 2.5 : 1.5} 
-                className={`transition-colors duration-300 ${isActive ? 'text-chic-olive' : 'text-gray-400'}`} 
-              />
-              <span className={`text-[10px] font-medium transition-colors duration-300 ${isActive ? 'text-chic-dark' : 'text-gray-400'}`}>
-                {tab.label}
-              </span>
-              {isActive && <div className="w-1 h-1 bg-chic-olive rounded-full mt-1"></div>}
-            </Link>
-          );
-        })}
-        
-        {/* Admin Tab for Mobile */}
-        <button 
-          onClick={toggleAdmin}
-          className={`flex flex-col items-center gap-1 p-3 w-16 transition-all duration-300 ${isAdmin ? '-translate-y-1' : ''}`}
+      {/* Spacer para compensar navbar fixa */}
+      <div className="h-16 md:h-20" />
+
+      {/* Link Admin adicional se ativo */}
+      {isAdmin && (
+        <Link
+          to="/admin"
+          className="fixed bottom-6 right-6 z-40 bg-chic-olive text-white px-4 py-2 rounded-full text-sm font-semibold shadow-lg hover:bg-chic-dark transition-all hover:scale-105 flex items-center gap-2"
         >
-          <User 
-             size={24} 
-             strokeWidth={isAdmin ? 2.5 : 1.5}
-             className={`transition-colors duration-300 ${isAdmin ? 'text-chic-olive' : 'text-gray-400'}`} 
-          />
-          <span className={`text-[10px] font-medium transition-colors duration-300 ${isAdmin ? 'text-chic-dark' : 'text-gray-400'}`}>
-             {isAdmin ? 'Admin' : 'Perfil'}
-          </span>
-          {isAdmin && <div className="w-1 h-1 bg-chic-olive rounded-full mt-1"></div>}
-        </button>
-      </div>
+          <User size={16} />
+          Admin
+        </Link>
+      )}
     </>
   );
 };

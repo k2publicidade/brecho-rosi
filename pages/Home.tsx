@@ -112,9 +112,9 @@ export const Home: React.FC = () => {
             flex overflow-x-auto snap-x snap-mandatory gap-4 px-6 pb-8 no-scrollbar
             md:grid md:grid-cols-4 md:gap-8 md:overflow-visible md:pb-0
           ">
-            {featuredProducts.map(product => (
+            {featuredProducts.map((product, index) => (
               <div key={product.id} className="min-w-[85%] sm:min-w-[45%] md:min-w-0 snap-center">
-                <ProductCard product={product} />
+                <ProductCard product={product} index={index} />
               </div>
             ))}
           </div>
