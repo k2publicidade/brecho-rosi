@@ -41,12 +41,12 @@ export const Home: React.FC = () => {
             </div>
             
             <h1 className="text-4xl md:text-7xl lg:text-8xl font-serif font-semibold text-chic-dark leading-[1.1] md:leading-[0.95] mb-4 md:mb-8">
-              O Brechó do <br className="hidden md:block"/>
-              Jardim <span className="text-chic-olive">Mariléia.</span>
+              Bem-vinda ao <br className="hidden md:block"/>
+              Brechó da <span className="text-chic-olive">Rosi</span>
             </h1>
             
             <p className="text-gray-600 mb-8 max-w-md mx-auto md:mx-0 leading-relaxed text-sm md:text-lg">
-              Sabe aquele achadinho que você ama? Ele está aqui, pertinho de você. Curadoria feita com carinho para as vizinhas mais estilosas.
+              Aquele achadinho que você ama está aqui, pertinho de você. Curadoria feita com carinho pela Rosi para as vizinhas mais estilosas do Jardim Mariléia.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
@@ -112,9 +112,9 @@ export const Home: React.FC = () => {
             flex overflow-x-auto snap-x snap-mandatory gap-4 px-6 pb-8 no-scrollbar
             md:grid md:grid-cols-4 md:gap-8 md:overflow-visible md:pb-0
           ">
-            {featuredProducts.map(product => (
+            {featuredProducts.map((product, index) => (
               <div key={product.id} className="min-w-[85%] sm:min-w-[45%] md:min-w-0 snap-center">
-                <ProductCard product={product} />
+                <ProductCard product={product} index={index} />
               </div>
             ))}
           </div>
@@ -128,9 +128,9 @@ export const Home: React.FC = () => {
             
             <div className="grid md:grid-cols-2 gap-12 relative z-10">
                <div>
-                  <h2 className="text-3xl md:text-5xl font-serif mb-4 md:mb-6">Histórias que vestem bem.</h2>
+                  <h2 className="text-3xl md:text-5xl font-serif mb-4 md:mb-6">A história por trás do garimpo</h2>
                   <p className="text-gray-400 text-sm md:text-lg leading-relaxed mb-8">
-                     Acreditamos na força da nossa comunidade aqui no Jardim Mariléia. Cada peça é garimpada pensando em você, unindo sustentabilidade, economia e aquele estilo único que só a gente tem.
+                     Sou a Rosi, apaixonada por moda e garimpo há anos. Criei este brechó para compartilhar com as vizinhas do Jardim Mariléia peças especiais que encontro. Cada achadinho passa pela minha curadoria afetiva, garantindo qualidade, preço justo e estilo atemporal.
                   </p>
                   <div className="flex gap-8">
                      <div>

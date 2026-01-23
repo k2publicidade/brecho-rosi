@@ -7,6 +7,7 @@ import { ProductDetail } from './pages/ProductDetail';
 import { Cart } from './pages/Cart';
 import { Admin } from './pages/Admin';
 import { Tracking } from './pages/Tracking';
+import { AddToCartModal } from './components/AddToCartModal';
 import { Product, CartItem, Order, StoreContextType, DeliveryMethod, OrderStatus, TrackingEvent, PaymentMethod } from './types';
 import { 
   getProducts, 
@@ -40,6 +41,10 @@ const App: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
+
+  // Estado do modal de adicionar ao carrinho
+  const [modalProduct, setModalProduct] = useState<Product | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Load initial data
   useEffect(() => {
@@ -82,11 +87,19 @@ const App: React.FC = () => {
 
   const addToCart = (product: Product) => {
     if (!product.available) return;
-    setCart(prev => {
-      // Simple logic: If exists, ignore (vintage items are usually unique/quantity 1)
-      if (prev.find(item => item.id === product.id)) return prev;
-      return [...prev, { ...product, quantity: 1 }];
-    });
+
+    const alreadyInCart = cart.find(item => item.id === product.id);
+
+    if (!alreadyInCart) {
+      setCart(prev => [...prev, { ...product, quantity: 1 }]);
+      // Abre o modal com animação
+      setModalProduct(product);
+      setIsModalOpen(true);
+    } else {
+      // Se já está no carrinho, apenas mostra o modal
+      setModalProduct(product);
+      setIsModalOpen(true);
+    }
   };
 
   const removeFromCart = (productId: string) => {
@@ -202,6 +215,13 @@ const App: React.FC = () => {
             <Route path="/admin" element={<Admin />} />
             <Route path="/tracking" element={<Tracking />} />
           </Routes>
+
+          {/* Modal de Adicionar ao Carrinho */}
+          <AddToCartModal
+            product={modalProduct}
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+          />
         </div>
       </Router>
     </StoreContext.Provider>

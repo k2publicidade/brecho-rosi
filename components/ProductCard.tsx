@@ -5,17 +5,25 @@ import { ArrowRight, Tag } from 'lucide-react';
 
 interface ProductCardProps {
   product: Product;
+  index?: number;
 }
 
-export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+export const ProductCard: React.FC<ProductCardProps> = ({ product, index = 0 }) => {
   // Calculate discount percentage if original price exists and is higher
   const hasDiscount = product.originalPrice && product.originalPrice > product.price;
-  const discountPercent = hasDiscount 
-    ? Math.round(((product.originalPrice! - product.price) / product.originalPrice!) * 100) 
+  const discountPercent = hasDiscount
+    ? Math.round(((product.originalPrice! - product.price) / product.originalPrice!) * 100)
     : 0;
 
   return (
-    <Link to={`/product/${product.id}`} className="group block h-full">
+    <Link
+      to={`/product/${product.id}`}
+      className="group block h-full animate-fade-in"
+      style={{
+        animationDelay: `${index * 50}ms`,
+        animationFillMode: 'both'
+      }}
+    >
       <div className="relative aspect-[3/4] overflow-hidden rounded-3xl bg-gray-100 mb-4">
         <img 
           src={product.imageUrl} 

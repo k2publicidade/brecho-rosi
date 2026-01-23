@@ -1,17 +1,30 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { StoreContext } from '../App';
-import { ShoppingBag, ArrowLeft, Ruler, Tag, AlertCircle, Share2, Heart } from 'lucide-react';
+import { ShoppingBag, ArrowLeft, Ruler, Tag, AlertCircle, Share2, Heart, Check } from 'lucide-react';
 
 export const ProductDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { products, addToCart } = useContext(StoreContext);
   const [product, setProduct] = useState(products.find(p => p.id === id));
+  const [isAdding, setIsAdding] = useState(false);
 
   useEffect(() => {
     setProduct(products.find(p => p.id === id));
   }, [id, products]);
+
+  const handleAddToCart = () => {
+    if (!product || !product.available) return;
+
+    setIsAdding(true);
+    addToCart(product);
+
+    // Reset animation after a moment
+    setTimeout(() => {
+      setIsAdding(false);
+    }, 600);
+  };
 
   if (!product) {
     return <div className="p-20 text-center text-gray-500">Produto não encontrado.</div>;
@@ -99,19 +112,30 @@ export const ProductDetail: React.FC = () => {
           
           <div className="flex gap-4">
             <button
-              onClick={() => addToCart(product)}
-              disabled={!product.available}
-              className={`flex-1 py-4 px-8 rounded-full flex items-center justify-center gap-3 font-bold text-lg transition-all ${
-                product.available 
-                ? 'bg-chic-dark hover:bg-black text-white shadow-lg shadow-gray-200' 
-                : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+              onClick={handleAddToCart}
+              disabled={!product.available || isAdding}
+              className={`flex-1 py-4 px-8 rounded-full flex items-center justify-center gap-3 font-bold text-lg transition-all transform ${
+                product.available
+                  ? isAdding
+                    ? 'bg-green-600 text-white shadow-lg shadow-green-200 scale-95'
+                    : 'bg-chic-dark hover:bg-black hover:scale-105 text-white shadow-lg shadow-gray-200'
+                  : 'bg-gray-200 text-gray-400 cursor-not-allowed'
               }`}
             >
-              <ShoppingBag size={20} />
-              {product.available ? 'Adicionar à Sacola' : 'Item Indisponível'}
+              {isAdding ? (
+                <>
+                  <Check size={20} className="animate-bounce" />
+                  Adicionado!
+                </>
+              ) : (
+                <>
+                  <ShoppingBag size={20} />
+                  {product.available ? 'Adicionar à Sacola' : 'Item Indisponível'}
+                </>
+              )}
             </button>
-            
-            <button className="w-14 h-14 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:border-chic-olive hover:text-chic-olive hover:bg-green-50 transition-all">
+
+            <button className="w-14 h-14 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:border-chic-olive hover:text-chic-olive hover:bg-green-50 hover:scale-110 transition-all transform">
                <Heart size={20} />
             </button>
           </div>
