@@ -7,9 +7,12 @@ import { Catalog } from './pages/Catalog';
 import { ProductDetail } from './pages/ProductDetail';
 import { Cart } from './pages/Cart';
 import { Admin } from './pages/Admin';
+import { AdminLogin } from './pages/AdminLogin';
+import { CustomerLogin } from './pages/CustomerLogin';
+import { CustomerProfile } from './pages/CustomerProfile';
 import { Tracking } from './pages/Tracking';
 import { AddToCartModal } from './components/AddToCartModal';
-import { Product, CartItem, Order, StoreContextType, DeliveryMethod, OrderStatus, TrackingEvent, PaymentMethod } from './types';
+import { Product, CartItem, Order, StoreContextType, DeliveryMethod, OrderStatus, TrackingEvent, PaymentMethod, CustomerUser } from './types';
 import { 
   getProducts, 
   addProductToDb, 
@@ -19,7 +22,7 @@ import {
   createOrderInDb, 
   updateOrderStatusInDb 
 } from './services/storeService';
-import { supabase } from './services/supabaseClient';
+import { supabase, supabaseConfigured } from './services/supabaseClient';
 
 // Default value for context
 const defaultContext: StoreContextType = {
@@ -27,6 +30,7 @@ const defaultContext: StoreContextType = {
   cart: [],
   orders: [],
   isAdmin: false,
+  customerUser: null,
   addToCart: () => {},
   removeFromCart: () => {},
   clearCart: () => {},
@@ -35,7 +39,10 @@ const defaultContext: StoreContextType = {
   addProduct: () => {},
   deleteProduct: () => {},
   signInAdmin: async () => {},
-  signOutAdmin: async () => {}
+  signOutAdmin: async () => {},
+  signInCustomer: async () => {},
+  signUpCustomer: async () => {},
+  signOutCustomer: async () => {}
 };
 
 export const StoreContext = createContext<StoreContextType>(defaultContext);
@@ -47,7 +54,7 @@ const allowedAdminEmails = (import.meta.env.VITE_ADMIN_EMAILS ?? '')
 
 const isAllowedAdminEmail = (email?: string | null) => {
   if (!email) return false;
-  if (allowedAdminEmails.length === 0) return true;
+  if (allowedAdminEmails.length === 0) return false;
   return allowedAdminEmails.includes(email.toLowerCase());
 };
 
@@ -56,6 +63,7 @@ const App: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [customerUser, setCustomerUser] = useState<CustomerUser | null>(null);
 
   // Estado do modal de adicionar ao carrinho
   const [modalProduct, setModalProduct] = useState<Product | null>(null);
@@ -80,8 +88,10 @@ const App: React.FC = () => {
         const sessionEmail = data.session?.user?.email;
         const allowed = !!data.session && isAllowedAdminEmail(sessionEmail);
         setIsAdmin(allowed);
-        if (data.session && !allowed) {
-          supabase.auth.signOut();
+        if (data.session?.user) {
+          setCustomerUser({ id: data.session.user.id, email: data.session.user.email });
+        } else {
+          setCustomerUser(null);
         }
       }
     });
@@ -89,8 +99,10 @@ const App: React.FC = () => {
       const sessionEmail = session?.user?.email;
       const allowed = !!session && isAllowedAdminEmail(sessionEmail);
       setIsAdmin(allowed);
-      if (session && !allowed) {
-        supabase.auth.signOut();
+      if (session?.user) {
+        setCustomerUser({ id: session.user.id, email: session.user.email });
+      } else {
+        setCustomerUser(null);
       }
     });
     return () => {
@@ -160,6 +172,8 @@ const App: React.FC = () => {
 
     const newOrder: Order = {
       id: Date.now().toString(),
+      customerId: customerUser?.id,
+      customerEmail: customerUser?.email ?? null,
       customerName,
       customerContact: contact,
       items: [...cart],
@@ -242,12 +256,34 @@ const App: React.FC = () => {
     }
   };
 
+  const signInCustomer = async (email: string, password: string) => {
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) {
+      throw error;
+    }
+  };
+
+  const signUpCustomer = async (email: string, password: string) => {
+    const { error } = await supabase.auth.signUp({ email, password });
+    if (error) {
+      throw error;
+    }
+  };
+
+  const signOutCustomer = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      throw error;
+    }
+  };
+
   return (
     <StoreContext.Provider value={{
       products,
       cart,
       orders,
       isAdmin,
+      customerUser,
       addToCart,
       removeFromCart,
       clearCart,
@@ -256,17 +292,28 @@ const App: React.FC = () => {
       addProduct,
       deleteProduct,
       signInAdmin,
-      signOutAdmin
+      signOutAdmin,
+      signInCustomer,
+      signUpCustomer,
+      signOutCustomer
     }}>
       <Router>
         <div className="min-h-screen bg-vintage-50 text-gray-800 font-sans selection:bg-vintage-300 selection:text-vintage-900">
           <Navbar />
+          {!supabaseConfigured && (
+            <div className="bg-red-50 text-red-700 text-sm font-semibold text-center py-3 px-4 border-b border-red-100">
+              Configuração do Supabase ausente. Adicione VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY no .env e reinicie o servidor.
+            </div>
+          )}
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/catalog" element={<Catalog />} />
             <Route path="/product/:id" element={<ProductDetail />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/admin" element={<Admin />} />
+            <Route path="/admin/login" element={<AdminLogin />} />
+            <Route path="/cliente/login" element={<CustomerLogin />} />
+            <Route path="/cliente/perfil" element={<CustomerProfile />} />
             <Route path="/tracking" element={<Tracking />} />
           </Routes>
 

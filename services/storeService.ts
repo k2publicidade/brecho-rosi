@@ -1,5 +1,5 @@
 import { Product, ProductCondition, ProductCategory, Order, OrderStatus } from '../types';
-import { supabase } from './supabaseClient';
+import { supabase, supabaseConfigured } from './supabaseClient';
 
 type CheckoutItem = {
   title: string;
@@ -24,6 +24,9 @@ const SEED_PRODUCTS: Product[] = [
 // --- Supabase Integration ---
 
 export const getProducts = async (): Promise<Product[]> => {
+  if (!supabaseConfigured) {
+    return import.meta.env.DEV ? getStoredProducts() : [];
+  }
   const { data, error } = await supabase
     .from('products')
     .select('*')
@@ -31,8 +34,7 @@ export const getProducts = async (): Promise<Product[]> => {
 
   if (error) {
     console.error('Erro ao buscar produtos:', error);
-    // Fallback to local storage if DB fails or is empty (for dev)
-    return getStoredProducts();
+    return import.meta.env.DEV ? getStoredProducts() : [];
   }
   
   // Transform DB data to Product type (snake_case to camelCase)
@@ -52,6 +54,9 @@ export const getProducts = async (): Promise<Product[]> => {
 };
 
 export const addProductToDb = async (product: Product): Promise<void> => {
+  if (!supabaseConfigured) {
+    throw new Error('Supabase URL ou Key não encontrados');
+  }
   const { error } = await supabase
     .from('products')
     .insert([{
@@ -75,6 +80,9 @@ export const addProductToDb = async (product: Product): Promise<void> => {
 };
 
 export const updateProductInDb = async (product: Product): Promise<void> => {
+    if (!supabaseConfigured) {
+        throw new Error('Supabase URL ou Key não encontrados');
+    }
     const { error } = await supabase
     .from('products')
     .update({
@@ -89,6 +97,9 @@ export const updateProductInDb = async (product: Product): Promise<void> => {
 }
 
 export const deleteProductFromDb = async (id: string): Promise<void> => {
+  if (!supabaseConfigured) {
+    throw new Error('Supabase URL ou Key não encontrados');
+  }
   const { error } = await supabase
     .from('products')
     .delete()
@@ -103,6 +114,9 @@ export const deleteProductFromDb = async (id: string): Promise<void> => {
 // --- Orders Integration ---
 
 export const getOrders = async (): Promise<Order[]> => {
+  if (!supabaseConfigured) {
+    return import.meta.env.DEV ? getStoredOrders() : [];
+  }
   const { data, error } = await supabase
     .from('orders')
     .select('*')
@@ -110,7 +124,7 @@ export const getOrders = async (): Promise<Order[]> => {
 
   if (error) {
     console.error('Erro ao buscar pedidos:', error);
-    return getStoredOrders();
+    return import.meta.env.DEV ? getStoredOrders() : [];
   }
 
   return data ? data.map((row: any) => ({
@@ -122,6 +136,9 @@ export const getOrders = async (): Promise<Order[]> => {
 };
 
 export const getOrderById = async (id: string): Promise<Order | null> => {
+  if (!supabaseConfigured) {
+    return import.meta.env.DEV ? getStoredOrders().find(o => o.id === id) || null : null;
+  }
   // Tenta buscar pelo ID exato ou pelos últimos caracteres (para facilitar busca)
   // Como 'like' pode ser lento, vamos focar no ID exato primeiro
   const { data, error } = await supabase
@@ -131,8 +148,7 @@ export const getOrderById = async (id: string): Promise<Order | null> => {
     .single();
 
   if (error || !data) {
-     // Fallback: tentar buscar localmente se não achar no banco (apenas para dev/transição)
-     const localOrders = getStoredOrders();
+     const localOrders = import.meta.env.DEV ? getStoredOrders() : [];
      return localOrders.find(o => o.id === id) || null;
   }
 
@@ -145,6 +161,9 @@ export const getOrderById = async (id: string): Promise<Order | null> => {
 };
 
 export const createOrderInDb = async (order: Order): Promise<void> => {
+  if (!supabaseConfigured) {
+    throw new Error('Supabase URL ou Key não encontrados');
+  }
   const { error } = await supabase
     .from('orders')
     .insert([{
@@ -163,6 +182,9 @@ export const createOrderInDb = async (order: Order): Promise<void> => {
 };
 
 export const updateOrderStatusInDb = async (orderId: string, newStatus: OrderStatus, updatedHistory: any[]): Promise<void> => {
+  if (!supabaseConfigured) {
+    throw new Error('Supabase URL ou Key não encontrados');
+  }
   // Primeiro buscamos o pedido atual para atualizar o trackingHistory dentro do jsonb
   const { data: currentOrder } = await supabase
     .from('orders')
@@ -193,6 +215,9 @@ export const updateOrderStatusInDb = async (orderId: string, newStatus: OrderSta
 };
 
 export const updateOrderStripeSession = async (orderId: string, sessionId: string): Promise<void> => {
+  if (!supabaseConfigured) {
+    throw new Error('Supabase URL ou Key não encontrados');
+  }
   const { data: currentOrder } = await supabase
     .from('orders')
     .select('order_data')

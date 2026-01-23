@@ -60,6 +60,8 @@ export interface CartItem extends Product {
 
 export interface Order {
   id: string;
+  customerId?: string;
+  customerEmail?: string | null;
   customerName: string;
   customerContact: string;
   items: CartItem[];
@@ -77,11 +79,17 @@ export interface Order {
   stripePaymentIntentId?: string;
 }
 
+export interface CustomerUser {
+  id: string;
+  email?: string | null;
+}
+
 export interface StoreContextType {
   products: Product[];
   cart: CartItem[];
   orders: Order[];
   isAdmin: boolean;
+  customerUser: CustomerUser | null;
   addToCart: (product: Product) => void;
   removeFromCart: (productId: string) => void;
   clearCart: () => void;
@@ -91,4 +99,7 @@ export interface StoreContextType {
   deleteProduct: (productId: string) => void;
   signInAdmin: (email: string, password: string) => Promise<void>;
   signOutAdmin: () => Promise<void>;
+  signInCustomer: (email: string, password: string) => Promise<void>;
+  signUpCustomer: (email: string, password: string) => Promise<void>;
+  signOutCustomer: () => Promise<void>;
 }

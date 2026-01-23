@@ -26,7 +26,7 @@ export const Home: React.FC = () => {
                 <div className="absolute bottom-6 left-6 text-white">
                    <div className="flex items-center gap-2 mb-2">
                       <Sparkles size={16} className="text-chic-olive" />
-                      <span className="text-xs font-bold uppercase tracking-widest">Jardim Mariléia</span>
+                      <span className="text-xs font-bold uppercase tracking-widest">Do bairro para o Brasil</span>
                    </div>
                    <p className="font-serif text-2xl">Moda com afeto.</p>
                 </div>
@@ -37,16 +37,16 @@ export const Home: React.FC = () => {
           <div className="md:w-1/2 relative z-10 text-center md:text-left">
             <div className="hidden md:flex items-center gap-2 mb-6">
                <span className="h-px w-8 bg-chic-olive"></span>
-               <span className="text-chic-olive font-bold uppercase tracking-widest text-xs">Do Bairro Para o Bairro</span>
+               <span className="text-chic-olive font-bold uppercase tracking-widest text-xs">Do Bairro Para o Brasil</span>
             </div>
             
             <h1 className="text-4xl md:text-7xl lg:text-8xl font-serif font-semibold text-chic-dark leading-[1.1] md:leading-[0.95] mb-4 md:mb-8">
               Bem-vinda ao <br className="hidden md:block"/>
-              Brechó da <span className="text-chic-olive">Rosi</span>
+              Rosi Design <span className="text-chic-olive">Ateliêr</span>
             </h1>
             
             <p className="text-gray-600 mb-8 max-w-md mx-auto md:mx-0 leading-relaxed text-sm md:text-lg">
-              Aquele achadinho que você ama está aqui, pertinho de você. Curadoria feita com carinho pela Rosi para as vizinhas mais estilosas do Jardim Mariléia.
+              Aquele achadinho que você ama, do bairro para todo o Brasil. Curadoria feita com carinho pela Rosi, com retirada local e entregas com rastreio.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
@@ -59,7 +59,7 @@ export const Home: React.FC = () => {
             <div className="hidden md:flex mt-16 items-center gap-12">
                <div>
                  <p className="text-3xl font-bold font-serif text-chic-dark">Local</p>
-                 <p className="text-sm text-gray-500 font-medium">Jardim Mariléia</p>
+                 <p className="text-sm text-gray-500 font-medium">Retirada local</p>
                </div>
                <div className="w-px h-10 bg-gray-200"></div>
                <div>
@@ -130,11 +130,11 @@ export const Home: React.FC = () => {
                <div>
                   <h2 className="text-3xl md:text-5xl font-serif mb-4 md:mb-6">A história por trás do garimpo</h2>
                   <p className="text-gray-400 text-sm md:text-lg leading-relaxed mb-8">
-                     Sou a Rosi, apaixonada por moda e garimpo há anos. Criei este brechó para compartilhar com as vizinhas do Jardim Mariléia peças especiais que encontro. Cada achadinho passa pela minha curadoria afetiva, garantindo qualidade, preço justo e estilo atemporal.
+                     Sou a Rosi, apaixonada por moda e garimpo há anos. Criei o Rosi Design Ateliêr para compartilhar peças especiais com quem ama estilo, com retirada local e envio para todo o Brasil. Cada achadinho passa pela minha curadoria afetiva, garantindo qualidade, preço justo e estilo atemporal.
                   </p>
                   <div className="flex gap-8">
                      <div>
-                        <h4 className="text-2xl md:text-3xl font-serif text-chic-olive font-bold mb-1">Vizinhas</h4>
+                        <h4 className="text-2xl md:text-3xl font-serif text-chic-olive font-bold mb-1">Clientes</h4>
                         <p className="text-xs md:text-sm text-gray-400">Felizes</p>
                      </div>
                      <div>

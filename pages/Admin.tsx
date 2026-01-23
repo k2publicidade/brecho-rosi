@@ -3,13 +3,11 @@ import { StoreContext } from '../App';
 import { ProductCategory, ProductCondition, Product, OrderStatus, DeliveryMethod } from '../types';
 import { generateProductDescription } from '../services/geminiService';
 import { Sparkles, Trash2, Package, ShoppingBag, Plus, Edit3, Image as ImageIcon, MapPin, CreditCard } from 'lucide-react';
+import { Navigate } from 'react-router-dom';
 
 export const Admin: React.FC = () => {
-  const { products, orders, addProduct, deleteProduct, updateOrderStatus, isAdmin, signInAdmin, signOutAdmin } = useContext(StoreContext);
+  const { products, orders, addProduct, deleteProduct, updateOrderStatus, isAdmin, signOutAdmin } = useContext(StoreContext);
   const [activeTab, setActiveTab] = useState<'products' | 'orders'>('products');
-  const [authForm, setAuthForm] = useState({ email: '', password: '' });
-  const [authError, setAuthError] = useState('');
-  const [authLoading, setAuthLoading] = useState(false);
 
   // Form State
   const [newProduct, setNewProduct] = useState<Partial<Product>>({
@@ -33,68 +31,7 @@ export const Admin: React.FC = () => {
   const labelClass = "block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5 ml-1";
 
   if (!isAdmin) {
-    const handleAuthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const { name, value } = e.target;
-      setAuthForm(prev => ({ ...prev, [name]: value }));
-    };
-
-    const handleSignIn = async (e: React.FormEvent) => {
-      e.preventDefault();
-      setAuthError('');
-      setAuthLoading(true);
-      try {
-        await signInAdmin(authForm.email, authForm.password);
-        setAuthForm({ email: '', password: '' });
-      } catch {
-        setAuthError('Email ou senha inválidos.');
-      } finally {
-        setAuthLoading(false);
-      }
-    };
-
-    return (
-      <div className="max-w-md mx-auto px-4 md:px-6 py-10 pb-24">
-        <div className="bg-white p-6 md:p-8 rounded-[2rem] shadow-xl shadow-gray-200/50 border border-gray-100">
-          <h1 className="text-2xl font-serif font-bold text-gray-900 mb-6 text-center">Login Administrativo</h1>
-          <form onSubmit={handleSignIn} className="space-y-5">
-            <div>
-              <label className={labelClass}>Email</label>
-              <input
-                type="email"
-                name="email"
-                value={authForm.email}
-                onChange={handleAuthChange}
-                className={inputClass}
-                placeholder="seuemail@brecho.com"
-                required
-              />
-            </div>
-            <div>
-              <label className={labelClass}>Senha</label>
-              <input
-                type="password"
-                name="password"
-                value={authForm.password}
-                onChange={handleAuthChange}
-                className={inputClass}
-                placeholder="••••••••"
-                required
-              />
-            </div>
-            {authError && (
-              <div className="text-sm text-red-500 font-bold text-center">{authError}</div>
-            )}
-            <button
-              type="submit"
-              disabled={authLoading}
-              className="w-full py-3 rounded-xl bg-chic-dark text-white font-bold hover:bg-black transition-all disabled:opacity-60"
-            >
-              {authLoading ? 'Entrando...' : 'Entrar'}
-            </button>
-          </form>
-        </div>
-      </div>
-    );
+    return <Navigate to="/admin/login" replace />;
   }
 
   // Helper: Get available statuses based on delivery method

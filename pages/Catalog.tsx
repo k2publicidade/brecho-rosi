@@ -70,8 +70,8 @@ export const Catalog: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
          <div>
-           <h1 className="text-3xl md:text-4xl font-serif font-bold text-chic-dark mb-2">Achadinhos do Mariléia</h1>
-           <p className="text-gray-500 text-sm md:text-base">Peças únicas esperando por uma nova vizinha.</p>
+           <h1 className="text-3xl md:text-4xl font-serif font-bold text-chic-dark mb-2">Achadinhos do Ateliêr</h1>
+           <p className="text-gray-500 text-sm md:text-base">Peças únicas esperando por um novo lar.</p>
          </div>
       </div>
 
@@ -83,7 +83,7 @@ export const Catalog: React.FC = () => {
                <Search className="absolute left-5 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-chic-dark transition-colors" size={20} />
                <input 
                  type="text" 
-                 placeholder="O que você procura hoje, vizinha?" 
+                placeholder="O que você procura hoje?" 
                  className="w-full pl-14 pr-4 py-4 bg-gray-50 border border-transparent rounded-2xl focus:border-chic-dark focus:bg-white focus:outline-none transition-all text-sm shadow-sm placeholder:text-gray-400"
                  value={searchTerm}
                  onChange={(e) => setSearchTerm(e.target.value)}

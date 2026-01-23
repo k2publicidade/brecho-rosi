@@ -195,7 +195,7 @@ export const Cart: React.FC = () => {
                 <p className="text-xs text-gray-400 uppercase font-bold tracking-widest mb-2">Código do Pedido</p>
                 <p className="text-5xl font-serif font-bold text-chic-olive tracking-tight mb-6">#{lastOrderCode.slice(-6)}</p>
                 <p className="text-gray-600 max-w-md mx-auto">
-                  Sua reserva no Jardim Mariléia está feita! As peças ficam reservadas por 24h.
+                  Sua reserva está feita! As peças ficam reservadas por 24h.
                 </p>
              </div>
 
@@ -257,7 +257,7 @@ export const Cart: React.FC = () => {
            <Store size={48} className="text-gray-300" />
         </div>
         <h2 className="text-4xl font-serif font-bold mb-4 text-chic-dark">Sua sacolinha está vazia</h2>
-        <p className="text-gray-500 mb-10 text-lg">Que tal dar uma olhada nos tesouros que chegaram no bairro hoje?</p>
+        <p className="text-gray-500 mb-10 text-lg">Que tal dar uma olhada nos tesouros que chegaram no ateliêr hoje?</p>
         <Link to="/catalog" className="inline-block px-10 py-4 bg-chic-olive text-white rounded-full font-bold text-lg hover:bg-opacity-90 transition-all shadow-lg shadow-chic-olive/20">
           Ver Achadinhos
         </Link>
@@ -331,7 +331,7 @@ export const Cart: React.FC = () => {
                     label="Nome" 
                     icon={User}
                     name="name" 
-                    placeholder="Seu nome, vizinha?"
+                    placeholder="Seu nome"
                     value={formData.name} 
                     onChange={handleInputChange} 
                     required

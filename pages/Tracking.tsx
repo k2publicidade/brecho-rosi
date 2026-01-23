@@ -2,14 +2,14 @@ import React, { useContext, useState, useEffect, useCallback } from 'react';
 import { StoreContext } from '../App';
 import { getOrderById } from '../services/storeService';
 import { Package, MapPin, CheckCircle, Clock, Truck, Store, ArrowRight } from 'lucide-react';
-import { OrderStatus, DeliveryMethod } from '../types';
+import { OrderStatus, DeliveryMethod, Order, TrackingEvent } from '../types';
 import { useLocation } from 'react-router-dom';
 
 export const Tracking: React.FC = () => {
   const { orders } = useContext(StoreContext);
   const location = useLocation();
   const [searchId, setSearchId] = useState('');
-  const [foundOrder, setFoundOrder] = useState<any | null>(null);
+  const [foundOrder, setFoundOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -100,10 +100,11 @@ export const Tracking: React.FC = () => {
     <div className="max-w-4xl mx-auto px-4 py-12 pb-32">
       <div className="text-center mb-10">
         <h1 className="text-3xl md:text-5xl font-serif font-bold text-chic-dark mb-4">Onde está meu garimpo?</h1>
-        <p className="text-gray-500 text-lg">Acompanhe o caminho da sua peça favorita até você.</p>
+        <p className="text-gray-500 text-lg">Acompanhe o caminho da sua peça favorita e o código de rastreio.</p>
       </div>
 
-      <form onSubmit={handleSearch} className="max-w-xl mx-auto mb-16 relative group">
+      <div className="mb-16">
+        <form onSubmit={handleSearch} className="max-w-xl mx-auto relative group">
         <div className="absolute inset-0 bg-chic-olive/5 rounded-full blur-xl group-hover:bg-chic-olive/10 transition-colors"></div>
         <input
           type="text"
@@ -119,7 +120,8 @@ export const Tracking: React.FC = () => {
         >
           {loading ? <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div> : <ArrowRight size={24} />}
         </button>
-      </form>
+        </form>
+      </div>
 
       {error && (
         <div className="max-w-md mx-auto p-4 bg-red-50 text-red-600 rounded-2xl text-center mb-8 border border-red-100 animate-fade-in text-sm font-medium">
@@ -179,7 +181,7 @@ export const Tracking: React.FC = () => {
                  <Clock size={16} /> Linha do Tempo
                </h3>
                <div className="space-y-8">
-                 {foundOrder.trackingHistory.slice().reverse().map((event: any, idx: number) => (
+                 {foundOrder.trackingHistory.slice().reverse().map((event: TrackingEvent, idx: number) => (
                    <div key={idx} className="relative pl-8 border-l-2 border-gray-200 last:border-0 pb-1">
                       <div className="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-white border-4 border-chic-dark"></div>
                       <div className="transform -translate-y-1.5">
@@ -205,7 +207,7 @@ export const Tracking: React.FC = () => {
                      <div className="flex items-start gap-3">
                        <div className="mt-1 text-chic-olive"><Store size={20} /></div>
                        <p className="text-gray-800 font-medium leading-relaxed">
-                         <span className="font-bold block text-lg mb-1">Loja Brechó do Mariléia</span>
+                         <span className="font-bold block text-lg mb-1">Rosi Design Ateliêr</span>
                          Jardim Mariléia<br/>
                          Rio das Ostras - RJ
                        </p>

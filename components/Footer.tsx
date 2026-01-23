@@ -39,7 +39,7 @@ export const Footer: React.FC = () => {
                 <Facebook size={20} />
               </a>
               <a
-                href="mailto:contato@brechodarosi.com.br"
+                href="mailto:contato@rosidesignatelier.com.br"
                 className="text-gray-300 hover:text-chic-olive transition-colors"
               >
                 <Mail size={20} />
@@ -94,7 +94,7 @@ export const Footer: React.FC = () => {
             <ul className="space-y-3 text-sm text-gray-300">
               <li className="flex items-start gap-2">
                 <MapPin size={16} className="mt-0.5 shrink-0 text-chic-olive" />
-                <span>São Paulo, SP<br />Brasil</span>
+                <span>Rio das Ostras - RJ<br />Brasil</span>
               </li>
               <li className="flex items-center gap-2">
                 <Phone size={16} className="shrink-0 text-chic-olive" />
@@ -102,7 +102,7 @@ export const Footer: React.FC = () => {
               </li>
               <li className="flex items-center gap-2">
                 <Mail size={16} className="shrink-0 text-chic-olive" />
-                <span>contato@brechodarosi.com.br</span>
+                <span>contato@rosidesignatelier.com.br</span>
               </li>
             </ul>
           </div>
@@ -111,7 +111,7 @@ export const Footer: React.FC = () => {
         {/* Copyright */}
         <div className="border-t border-gray-700 mt-8 pt-6 text-center text-sm text-gray-400">
           <p>
-            &copy; {new Date().getFullYear()} Brechó da Rosi. Todos os direitos
+            &copy; {new Date().getFullYear()} Rosi Design Ateliêr. Todos os direitos
             reservados.
           </p>
           <div className="mt-2 text-xs opacity-50 hover:opacity-100 transition-opacity">
