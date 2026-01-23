@@ -33,16 +33,13 @@ jobs:
       - name: 🏗️ Build Project
         run: npm run build
 
-      - name: 📂 Sync files to Hostinger
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      - name: 📂 Sync files to Hostinger via SFTP
+        uses: wlixcc/SFTP-Deploy-Action@v1.2.4
         with:
-          server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./dist/
-          server-dir: ./public_html/
-          protocol: ftp
-          exclude: |
-            **/.git*
-            **/.git*/**
-            **/node_modules/**
+          server: ${{ secrets.FTP_SERVER }}
+          port: 65002 
+          local_path: './dist/*'
+          remote_path: '/public_html/'
+          sftp_only: true
