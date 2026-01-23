@@ -33,13 +33,21 @@ jobs:
       - name: 🏗️ Build Project
         run: npm run build
 
-      - name: 📂 Sync files to Hostinger via SFTP
-        uses: wlixcc/SFTP-Deploy-Action@v1.2.4
+      - name: 🔍 Debug Network Connectivity
+        run: |
+          echo "Checking Port 21 (FTP)..."
+          nc -zv ${{ secrets.FTP_SERVER }} 21 || echo "Port 21 unreachable"
+
+      - name: 📂 Sync files to Hostinger
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
+          server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          server: ${{ secrets.FTP_SERVER }}
-          port: 65002 
-          local_path: './dist/*'
-          remote_path: '/public_html/'
-          sftp_only: true
+          local-dir: ./dist/
+          server-dir: ./public_html/
+          protocol: ftp
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
