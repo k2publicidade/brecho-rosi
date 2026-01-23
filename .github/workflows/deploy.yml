@@ -33,21 +33,14 @@ jobs:
       - name: 🏗️ Build Project
         run: npm run build
 
-      - name: 🔍 Debug Network Connectivity
+      - name: 🔍 Resolve FTP Server IP
         run: |
-          echo "Checking Port 21 (FTP)..."
-          nc -zv ${{ secrets.FTP_SERVER }} 21 || echo "Port 21 unreachable"
+          echo "Resolving IP for ${{ secrets.FTP_SERVER }}..."
+          nslookup ${{ secrets.FTP_SERVER }} || echo "nslookup failed"
+          getent hosts ${{ secrets.FTP_SERVER }} || echo "getent failed"
 
-      - name: 📂 Sync files to Hostinger
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./dist/
-          server-dir: ./public_html/
-          protocol: ftp
-          exclude: |
-            **/.git*
-            **/.git*/**
-            **/node_modules/**
+      - name: 📂 Sync files via lftp
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y lftp
+          lftp -c "set ftp:ssl-allow no; set net:timeout 20; set net:max-retries 2; open -u '${{ secrets.FTP_USERNAME }}','${{ secrets.FTP_PASSWORD }}' '${{ secrets.FTP_SERVER }}'; mirror -R -v --parallel=2 ./dist ./public_html"
