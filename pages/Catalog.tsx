@@ -2,7 +2,7 @@ import React, { useContext, useState, useMemo, useEffect } from 'react';
 import { StoreContext } from '../App';
 import { ProductCard } from '../components/ProductCard';
 import { ProductCategory, ProductCondition } from '../types';
-import { Search, ChevronDown, Filter, X } from 'lucide-react';
+import { Search, ChevronDown, Filter } from 'lucide-react';
 
 export const Catalog: React.FC = () => {
   const { products } = useContext(StoreContext);
@@ -27,6 +27,7 @@ export const Catalog: React.FC = () => {
 
   // Initialize range when products load
   useEffect(() => {
+    // eslint-disable-next-line
     setPriceRange({ min: globalMin, max: globalMax });
   }, [globalMin, globalMax]);
 

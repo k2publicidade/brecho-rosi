@@ -35,7 +35,7 @@ export const generateProductDescription = async (
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
     });
 
-    // @ts-ignore - Fix for potential type mismatch in preview SDK
+    // Fix for potential type mismatch in preview SDK
     const responseText = (response as any).text ? (response as any).text() : (response as any).response?.text();
     return responseText || "Não foi possível gerar a descrição.";
   } catch (error) {

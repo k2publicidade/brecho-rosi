@@ -13,11 +13,13 @@ import { Product, CartItem, Order, StoreContextType, DeliveryMethod, OrderStatus
 import { 
   getProducts, 
   addProductToDb, 
+  updateProductInDb,
   deleteProductFromDb, 
   getOrders, 
   createOrderInDb, 
   updateOrderStatusInDb 
 } from './services/storeService';
+import { supabase } from './services/supabaseClient';
 
 // Default value for context
 const defaultContext: StoreContextType = {
@@ -32,10 +34,22 @@ const defaultContext: StoreContextType = {
   updateOrderStatus: () => {},
   addProduct: () => {},
   deleteProduct: () => {},
-  toggleAdmin: () => {}
+  signInAdmin: async () => {},
+  signOutAdmin: async () => {}
 };
 
 export const StoreContext = createContext<StoreContextType>(defaultContext);
+
+const allowedAdminEmails = (import.meta.env.VITE_ADMIN_EMAILS ?? '')
+  .split(',')
+  .map((email: string) => email.trim().toLowerCase())
+  .filter(Boolean);
+
+const isAllowedAdminEmail = (email?: string | null) => {
+  if (!email) return false;
+  if (allowedAdminEmails.length === 0) return true;
+  return allowedAdminEmails.includes(email.toLowerCase());
+};
 
 const App: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -57,6 +71,32 @@ const App: React.FC = () => {
       setOrders(dbOrders);
     };
     loadData();
+  }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+    supabase.auth.getSession().then(({ data }) => {
+      if (isMounted) {
+        const sessionEmail = data.session?.user?.email;
+        const allowed = !!data.session && isAllowedAdminEmail(sessionEmail);
+        setIsAdmin(allowed);
+        if (data.session && !allowed) {
+          supabase.auth.signOut();
+        }
+      }
+    });
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+      const sessionEmail = session?.user?.email;
+      const allowed = !!session && isAllowedAdminEmail(sessionEmail);
+      setIsAdmin(allowed);
+      if (session && !allowed) {
+        supabase.auth.signOut();
+      }
+    });
+    return () => {
+      isMounted = false;
+      authListener.subscription.unsubscribe();
+    };
   }, []);
 
   const addProduct = async (product: Product) => {
@@ -150,12 +190,9 @@ const App: React.FC = () => {
     
     // Also update product availability in DB
     updatedProducts.forEach(p => {
-        if (soldProductIds.has(p.id)) {
-            // Assuming updateProductInDb exists or we use addProductToDb as upsert?
-            // Actually storeService has updateProductInDb but it was not imported/used
-            // Let's assume we need to implement it or use what we have.
-            // For now, let's just keep UI in sync. Ideally we call updateProductInDb(p)
-        }
+      if (soldProductIds.has(p.id)) {
+        updateProductInDb(p).catch(console.error);
+      }
     });
     
     return newOrder.id;
@@ -186,9 +223,24 @@ const App: React.FC = () => {
     setOrders(updatedOrders);
   };
 
+  const signInAdmin = async (email: string, password: string) => {
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) {
+      throw error;
+    }
+    const sessionEmail = data.session?.user?.email;
+    if (!isAllowedAdminEmail(sessionEmail)) {
+      await supabase.auth.signOut();
+      throw new Error('Admin não autorizado');
+    }
+  };
 
-
-  const toggleAdmin = () => setIsAdmin(!isAdmin);
+  const signOutAdmin = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      throw error;
+    }
+  };
 
   return (
     <StoreContext.Provider value={{
@@ -203,7 +255,8 @@ const App: React.FC = () => {
       updateOrderStatus,
       addProduct,
       deleteProduct,
-      toggleAdmin
+      signInAdmin,
+      signOutAdmin
     }}>
       <Router>
         <div className="min-h-screen bg-vintage-50 text-gray-800 font-sans selection:bg-vintage-300 selection:text-vintage-900">

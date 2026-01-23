@@ -6,7 +6,7 @@ import { StoreContext } from '../App';
 import { Logo } from './Logo';
 
 export const Navbar: React.FC = () => {
-  const { cart, isAdmin, toggleAdmin } = useContext(StoreContext);
+  const { cart, isAdmin } = useContext(StoreContext);
   const location = useLocation();
 
   const navItems = [
@@ -76,17 +76,7 @@ export const Navbar: React.FC = () => {
             </div>
           </div>
 
-          {/* Ações (Desktop) */}
           <div className="flex items-center gap-4 md:gap-6 shrink-0">
-            <button
-              onClick={toggleAdmin}
-              className={`hidden md:block transition-colors ${isAdmin ? 'text-chic-olive' : 'text-gray-600 hover:text-chic-olive'}`}
-              title={isAdmin ? 'Modo Admin Ativo' : 'Ativar Modo Admin'}
-            >
-              <User size={20} strokeWidth={1.5} />
-            </button>
-
-            {/* Cart Icon - Visible on Mobile & Desktop */}
             <Link
               to="/cart"
               className="relative text-gray-600 hover:text-chic-olive transition-colors group p-1"

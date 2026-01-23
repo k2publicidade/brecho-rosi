@@ -4,6 +4,7 @@ import { DeliveryMethod, PaymentMethod } from '../types';
 import { Trash2, Store, CheckCircle, Truck, Calculator, ArrowRight, User, Mail, MapPin, CreditCard, Banknote, QrCode, Copy } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { calculateShippingQuote } from '../services/shippingService';
+import { createStripeCheckoutSession, updateOrderStripeSession } from '../services/storeService';
 
 // PremiumInput Component - Separado para evitar re-criação
 const PremiumInput = ({
@@ -108,14 +109,14 @@ export const Cart: React.FC = () => {
       setShippingCost(quote.price);
       setDeliveryDays(quote.days);
       setIsShippingCalculated(true);
-    } catch (error) {
+    } catch {
       alert("Erro ao calcular frete. Verifique o CEP.");
     } finally {
       setIsCalculating(false);
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (method === DeliveryMethod.DELIVERY && !isShippingCalculated) {
@@ -136,6 +137,37 @@ export const Cart: React.FC = () => {
       formData.zip,
       shippingCost
     );
+
+    if (paymentMethod === PaymentMethod.CREDIT_CARD) {
+      try {
+        const successUrl = `${window.location.origin}/#/tracking?orderId=${orderId}`;
+        const cancelUrl = `${window.location.origin}/#/cart?orderId=${orderId}`;
+        const session = await createStripeCheckoutSession({
+          orderId,
+          customerName: formData.name,
+          customerContact: formData.contact,
+          items: cart.map(item => ({
+            title: item.title,
+            price: item.price,
+            quantity: item.quantity
+          })),
+          shippingCost,
+          successUrl,
+          cancelUrl
+        });
+
+        if (session?.sessionId) {
+          await updateOrderStripeSession(orderId, session.sessionId);
+        }
+        if (session?.url) {
+          window.location.href = session.url;
+          return;
+        }
+      } catch (error) {
+        console.error(error);
+        alert("Não foi possível iniciar o pagamento no cartão.");
+      }
+    }
     
     setLastOrderCode(orderId);
     setConfirmedPaymentMethod(paymentMethod);
@@ -193,7 +225,7 @@ export const Cart: React.FC = () => {
 
                {confirmedPaymentMethod === PaymentMethod.CREDIT_CARD && (
                  <p className="text-sm text-gray-600">
-                   Levaremos a maquininha até você na entrega ou teremos disponível na retirada. Aceitamos todas as bandeiras.
+                   Se o pagamento não abrir automaticamente, volte e tente novamente para gerar o link seguro.
                  </p>
                )}
 
@@ -435,7 +467,7 @@ export const Cart: React.FC = () => {
                <div className="space-y-3">
                   {[
                     { id: PaymentMethod.PIX, icon: QrCode, label: 'Pix', sub: 'Aprovação Imediata' },
-                    { id: PaymentMethod.CREDIT_CARD, icon: CreditCard, label: 'Cartão', sub: 'Levamos a máquina' },
+                    { id: PaymentMethod.CREDIT_CARD, icon: CreditCard, label: 'Cartão', sub: 'Pagamento online' },
                     { id: PaymentMethod.CASH, icon: Banknote, label: 'Dinheiro', sub: 'Pagamento na entrega' }
                   ].map((pay) => (
                     <label 

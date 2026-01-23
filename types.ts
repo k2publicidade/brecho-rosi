@@ -73,6 +73,8 @@ export interface Order {
   status: OrderStatus;
   trackingHistory: TrackingEvent[];
   date: string;
+  stripeSessionId?: string;
+  stripePaymentIntentId?: string;
 }
 
 export interface StoreContextType {
@@ -87,5 +89,6 @@ export interface StoreContextType {
   updateOrderStatus: (orderId: string, newStatus: OrderStatus, note?: string) => void;
   addProduct: (product: Product) => void;
   deleteProduct: (productId: string) => void;
-  toggleAdmin: () => void;
+  signInAdmin: (email: string, password: string) => Promise<void>;
+  signOutAdmin: () => Promise<void>;
 }

@@ -1,24 +1,24 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect, useCallback } from 'react';
 import { StoreContext } from '../App';
 import { getOrderById } from '../services/storeService';
-import { Search, Package, MapPin, CheckCircle, Clock, Truck, Store, ArrowRight } from 'lucide-react';
+import { Package, MapPin, CheckCircle, Clock, Truck, Store, ArrowRight } from 'lucide-react';
 import { OrderStatus, DeliveryMethod } from '../types';
+import { useLocation } from 'react-router-dom';
 
 export const Tracking: React.FC = () => {
   const { orders } = useContext(StoreContext);
+  const location = useLocation();
   const [searchId, setSearchId] = useState('');
   const [foundOrder, setFoundOrder] = useState<any | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const performSearch = useCallback(async (id: string) => {
     setError('');
     setFoundOrder(null);
     setLoading(true);
 
-    // 1. Tenta encontrar no contexto local (já carregado)
-    const localOrder = orders.find(o => o.id === searchId || o.id.endsWith(searchId));
+    const localOrder = orders.find(o => o.id === id || o.id.endsWith(id));
     
     if (localOrder) {
       setFoundOrder(localOrder);
@@ -26,9 +26,8 @@ export const Tracking: React.FC = () => {
       return;
     }
 
-    // 2. Se não achar, busca diretamente no Supabase (para garantir)
     try {
-      const dbOrder = await getOrderById(searchId);
+      const dbOrder = await getOrderById(id);
       if (dbOrder) {
         setFoundOrder(dbOrder);
       } else {
@@ -40,7 +39,24 @@ export const Tracking: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  }, [orders]);
+
+  const handleSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await performSearch(searchId);
   };
+
+  useEffect(() => {
+    const hash = window.location.hash;
+    const queryIndex = hash.indexOf('?');
+    const query = queryIndex >= 0 ? hash.slice(queryIndex) : location.search;
+    const params = new URLSearchParams(query);
+    const orderId = params.get('orderId');
+    if (orderId) {
+      setSearchId(orderId);
+      performSearch(orderId);
+    }
+  }, [location.search, performSearch]);
 
   const getStatusIcon = (status: OrderStatus) => {
     switch (status) {

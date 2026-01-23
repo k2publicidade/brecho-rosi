@@ -2,11 +2,14 @@ import React, { useContext, useState } from 'react';
 import { StoreContext } from '../App';
 import { ProductCategory, ProductCondition, Product, OrderStatus, DeliveryMethod } from '../types';
 import { generateProductDescription } from '../services/geminiService';
-import { Sparkles, Trash2, Package, ShoppingBag, Plus, Upload, Edit3, Image as ImageIcon, MapPin, CreditCard } from 'lucide-react';
+import { Sparkles, Trash2, Package, ShoppingBag, Plus, Edit3, Image as ImageIcon, MapPin, CreditCard } from 'lucide-react';
 
 export const Admin: React.FC = () => {
-  const { products, orders, addProduct, deleteProduct, updateOrderStatus, isAdmin } = useContext(StoreContext);
+  const { products, orders, addProduct, deleteProduct, updateOrderStatus, isAdmin, signInAdmin, signOutAdmin } = useContext(StoreContext);
   const [activeTab, setActiveTab] = useState<'products' | 'orders'>('products');
+  const [authForm, setAuthForm] = useState({ email: '', password: '' });
+  const [authError, setAuthError] = useState('');
+  const [authLoading, setAuthLoading] = useState(false);
 
   // Form State
   const [newProduct, setNewProduct] = useState<Partial<Product>>({
@@ -19,7 +22,6 @@ export const Admin: React.FC = () => {
     category: ProductCategory.CLOTHING,
     available: true,
   });
-  const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
   const [isGenerating, setIsGenerating] = useState(false);
 
@@ -27,8 +29,72 @@ export const Admin: React.FC = () => {
   const [editingOrderId, setEditingOrderId] = useState<string | null>(null);
   const [newStatus, setNewStatus] = useState<OrderStatus>(OrderStatus.PENDING_PAYMENT);
 
+  const inputClass = "w-full bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-xl focus:ring-2 focus:ring-chic-dark/10 focus:border-chic-dark focus:bg-white block p-3 transition-all outline-none placeholder:text-gray-400";
+  const labelClass = "block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5 ml-1";
+
   if (!isAdmin) {
-    return <div className="p-10 text-center text-red-500 font-bold">Acesso negado.</div>;
+    const handleAuthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const { name, value } = e.target;
+      setAuthForm(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleSignIn = async (e: React.FormEvent) => {
+      e.preventDefault();
+      setAuthError('');
+      setAuthLoading(true);
+      try {
+        await signInAdmin(authForm.email, authForm.password);
+        setAuthForm({ email: '', password: '' });
+      } catch {
+        setAuthError('Email ou senha inválidos.');
+      } finally {
+        setAuthLoading(false);
+      }
+    };
+
+    return (
+      <div className="max-w-md mx-auto px-4 md:px-6 py-10 pb-24">
+        <div className="bg-white p-6 md:p-8 rounded-[2rem] shadow-xl shadow-gray-200/50 border border-gray-100">
+          <h1 className="text-2xl font-serif font-bold text-gray-900 mb-6 text-center">Login Administrativo</h1>
+          <form onSubmit={handleSignIn} className="space-y-5">
+            <div>
+              <label className={labelClass}>Email</label>
+              <input
+                type="email"
+                name="email"
+                value={authForm.email}
+                onChange={handleAuthChange}
+                className={inputClass}
+                placeholder="seuemail@brecho.com"
+                required
+              />
+            </div>
+            <div>
+              <label className={labelClass}>Senha</label>
+              <input
+                type="password"
+                name="password"
+                value={authForm.password}
+                onChange={handleAuthChange}
+                className={inputClass}
+                placeholder="••••••••"
+                required
+              />
+            </div>
+            {authError && (
+              <div className="text-sm text-red-500 font-bold text-center">{authError}</div>
+            )}
+            <button
+              type="submit"
+              disabled={authLoading}
+              className="w-full py-3 rounded-xl bg-chic-dark text-white font-bold hover:bg-black transition-all disabled:opacity-60"
+            >
+              {authLoading ? 'Entrando...' : 'Entrar'}
+            </button>
+          </form>
+        </div>
+      </div>
+    );
   }
 
   // Helper: Get available statuses based on delivery method
@@ -109,31 +175,34 @@ export const Admin: React.FC = () => {
       category: ProductCategory.CLOTHING,
       available: true,
     });
-    setImageFile(null);
     setImagePreview('');
     alert("Produto cadastrado com sucesso!");
   };
-
-  // Shared Styles for Inputs
-  const inputClass = "w-full bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-xl focus:ring-2 focus:ring-chic-dark/10 focus:border-chic-dark focus:bg-white block p-3 transition-all outline-none placeholder:text-gray-400";
-  const labelClass = "block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5 ml-1";
 
   return (
     <div className="max-w-7xl mx-auto px-4 md:px-6 py-8 pb-24">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <h1 className="text-3xl font-serif font-bold text-gray-900">Painel Administrativo</h1>
-        <div className="flex bg-gray-100 p-1.5 rounded-xl">
-          <button 
-            onClick={() => setActiveTab('products')}
-            className={`px-5 py-2 rounded-lg font-bold text-sm transition-all shadow-sm ${activeTab === 'products' ? 'bg-white text-chic-dark shadow' : 'text-gray-500 hover:text-gray-700 shadow-none'}`}
+        <div className="flex items-center gap-3">
+          <div className="flex bg-gray-100 p-1.5 rounded-xl">
+            <button 
+              onClick={() => setActiveTab('products')}
+              className={`px-5 py-2 rounded-lg font-bold text-sm transition-all shadow-sm ${activeTab === 'products' ? 'bg-white text-chic-dark shadow' : 'text-gray-500 hover:text-gray-700 shadow-none'}`}
+            >
+              Produtos
+            </button>
+            <button 
+               onClick={() => setActiveTab('orders')}
+               className={`px-5 py-2 rounded-lg font-bold text-sm transition-all shadow-sm ${activeTab === 'orders' ? 'bg-white text-chic-dark shadow' : 'text-gray-500 hover:text-gray-700 shadow-none'}`}
+            >
+              Pedidos
+            </button>
+          </div>
+          <button
+            onClick={signOutAdmin}
+            className="px-4 py-2 rounded-xl bg-gray-200 text-gray-700 text-sm font-bold hover:bg-gray-300 transition-colors"
           >
-            Produtos
-          </button>
-          <button 
-             onClick={() => setActiveTab('orders')}
-             className={`px-5 py-2 rounded-lg font-bold text-sm transition-all shadow-sm ${activeTab === 'orders' ? 'bg-white text-chic-dark shadow' : 'text-gray-500 hover:text-gray-700 shadow-none'}`}
-          >
-            Pedidos
+            Sair
           </button>
         </div>
       </div>

@@ -114,6 +114,11 @@ export const Footer: React.FC = () => {
             &copy; {new Date().getFullYear()} Brechó da Rosi. Todos os direitos
             reservados.
           </p>
+          <div className="mt-2 text-xs opacity-50 hover:opacity-100 transition-opacity">
+            <Link to="/admin" className="text-gray-500 hover:text-gray-300">
+              Acesso Administrativo
+            </Link>
+          </div>
         </div>
       </div>
     </footer>

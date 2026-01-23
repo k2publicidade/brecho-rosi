@@ -1,6 +1,17 @@
 import { Product, ProductCondition, ProductCategory, Order, OrderStatus } from '../types';
 import { supabase } from './supabaseClient';
 
+type CheckoutItem = {
+  title: string;
+  price: number;
+  quantity: number;
+};
+
+type CheckoutSessionResponse = {
+  url: string;
+  sessionId: string;
+};
+
 const STORAGE_KEYS = {
   PRODUCTS: 'ecochic_products',
   ORDERS: 'ecochic_orders'
@@ -179,6 +190,73 @@ export const updateOrderStatusInDb = async (orderId: string, newStatus: OrderSta
         throw error;
     }
   }
+};
+
+export const updateOrderStripeSession = async (orderId: string, sessionId: string): Promise<void> => {
+  const { data: currentOrder } = await supabase
+    .from('orders')
+    .select('order_data')
+    .eq('id', orderId)
+    .single();
+
+  if (!currentOrder) return;
+
+  const updatedData = {
+    ...currentOrder.order_data,
+    stripeSessionId: sessionId
+  };
+
+  const { error } = await supabase
+    .from('orders')
+    .update({
+      order_data: updatedData
+    })
+    .eq('id', orderId);
+
+  if (error) {
+    console.error('Erro ao atualizar sessão Stripe do pedido:', error);
+    throw error;
+  }
+};
+
+const getFunctionsBaseUrl = (): string => {
+  const baseUrl = import.meta.env.VITE_SUPABASE_URL;
+  if (!baseUrl) return '';
+  return `${baseUrl.replace(/\/$/, '')}/functions/v1`;
+};
+
+export const createStripeCheckoutSession = async (payload: {
+  orderId: string;
+  customerName: string;
+  customerContact: string;
+  items: CheckoutItem[];
+  shippingCost: number;
+  successUrl: string;
+  cancelUrl: string;
+}): Promise<CheckoutSessionResponse> => {
+  const baseUrl = getFunctionsBaseUrl();
+  const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+  if (!baseUrl || !anonKey) {
+    throw new Error('Supabase URL ou Key não encontrados');
+  }
+
+  const response = await fetch(`${baseUrl}/stripe-checkout`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${anonKey}`,
+      'apikey': anonKey
+    },
+    body: JSON.stringify(payload)
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(errorText || 'Erro ao iniciar checkout');
+  }
+
+  return response.json();
 };
 
 
