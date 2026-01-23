@@ -1,6 +1,7 @@
 import React, { useState, useEffect, createContext } from 'react';
 import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 import { Navbar } from './components/Navbar';
+import { Footer } from './components/Footer';
 import { Home } from './pages/Home';
 import { Catalog } from './pages/Catalog';
 import { ProductDetail } from './pages/ProductDetail';
@@ -215,6 +216,9 @@ const App: React.FC = () => {
             <Route path="/admin" element={<Admin />} />
             <Route path="/tracking" element={<Tracking />} />
           </Routes>
+
+          {/* Footer */}
+          <Footer />
 
           {/* Modal de Adicionar ao Carrinho */}
           <AddToCartModal

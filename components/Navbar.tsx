@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { ShoppingBag, User, Home, Package, Grid } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { StoreContext } from '../App';
+import { Logo } from './Logo';
 
 export const Navbar: React.FC = () => {
   const { cart, isAdmin, toggleAdmin } = useContext(StoreContext);
@@ -21,9 +22,11 @@ export const Navbar: React.FC = () => {
         <div className="max-w-7xl mx-auto px-6 h-16 md:h-20 flex justify-between items-center gap-4 md:gap-8">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 group shrink-0">
-            <span className="font-serif text-xl md:text-2xl font-bold text-chic-dark tracking-tight group-hover:opacity-80 transition-opacity">
-              Brechó da Rosi<span className="text-chic-olive">.</span>
-            </span>
+            <Logo
+              size="sm"
+              className="transition-transform group-hover:scale-105"
+              animated={true}
+            />
           </Link>
 
           {/* Tubelight Navigation - Centro */}
