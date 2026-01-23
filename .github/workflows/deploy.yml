@@ -39,8 +39,21 @@ jobs:
           nslookup ${{ secrets.FTP_SERVER }} || echo "nslookup failed"
           getent hosts ${{ secrets.FTP_SERVER }} || echo "getent failed"
 
+      - name: 🔍 Check FTP Ports
+        env:
+          FTP_PORT: ${{ secrets.FTP_PORT || '21' }}
+        run: |
+          echo "Checking FTP ports on ${{ secrets.FTP_SERVER }}..."
+          nc -zv ${{ secrets.FTP_SERVER }} 21 || echo "Port 21 unreachable"
+          nc -zv ${{ secrets.FTP_SERVER }} 990 || echo "Port 990 unreachable"
+          nc -zv ${{ secrets.FTP_SERVER }} 65002 || echo "Port 65002 unreachable"
+          nc -zv ${{ secrets.FTP_SERVER }} $FTP_PORT || echo "Port $FTP_PORT unreachable"
+
       - name: 📂 Sync files via lftp
+        env:
+          FTP_PORT: ${{ secrets.FTP_PORT || '21' }}
+          FTP_SSL: ${{ secrets.FTP_SSL || 'false' }}
         run: |
           sudo apt-get update
           sudo apt-get install -y lftp
-          lftp -c "set ftp:ssl-allow no; set net:timeout 20; set net:max-retries 2; open -u '${{ secrets.FTP_USERNAME }}','${{ secrets.FTP_PASSWORD }}' '${{ secrets.FTP_SERVER }}'; mirror -R -v --parallel=2 ./dist ./public_html"
+          lftp -c "set dns:order 'inet'; set ftp:ssl-allow ${FTP_SSL}; set ftp:ssl-force ${FTP_SSL}; set ftp:ssl-protect-data ${FTP_SSL}; set ftp:passive-mode true; set net:timeout 20; set net:max-retries 2; open -p ${FTP_PORT} -u '${{ secrets.FTP_USERNAME }}','${{ secrets.FTP_PASSWORD }}' '${{ secrets.FTP_SERVER }}'; mirror -R -v --parallel=2 ./dist ./public_html"
